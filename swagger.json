@@ -1,0 +1,6393 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "File Management Platform API",
+    "description": "Start integrating your application with our Bank and give your clients the options to upload and download files without any restriction, neither size nor file type.\n\n## How to upload\nThere are only 2 steps in order to upload a file.\n\n1. Initiate an upload request in order to be informed of the size and the number of the chunks that the initial file should be seperated. You can use our own console application which takes over the seperation/upload process and the download process as well. Initiation could be invoked by typing **PUT /files/upload-initiation**\n2. Upload the chunks one by one in a chronologically and incremental way as they seperated. Upload can be invoked by typing **POST /files/{fileId}/upload**. The File identifier is retrieved from the previous step. Let's say there are 3 chunks, the first two chunks return an HTTP Status Code 308 Range and the final one returns HTTP Status Code 200 OK which indicates that the operation ended successfully.\n\nBetween and after the above steps you can be informed about the status of the operation by invoking **GET /files/{fileId}**.\n\n## How to download\nA file can be downloaded by providing the file identifier and the chunk number one by one. Let's say a file is seperated in 3 chunks, the download action **GET /files/{fileId}/{chunkPart}** should be invoked 3 times by specifying the same fileId and chunk parts one by one (first 1 then 2 and lastly 3). The total chunks of a file can be retrieved from GET /files/{fileId} action.\n\n## Ethnofiles Service\n\nEthnofiles Service provides the ability to send any uploaded file to the NBG ethnofiles system.\n\n## How to send a file to enthofiles\nThere is only 1 step in order to send the file.\n1. Push the file to Ethnofiles using the endpoint **POST /ethnofiles/sendFile**\n\n\n## Validation Endpoints \n1. You can validate the filename of a file **POST /validation/filename**\n2. And you can do some basic validations to the content through **POST  /validation/file**   \n\n## Third Party Payments Service\n\nThird Party Payments Service provides the ability to send massive payments to 3rd party organizations like electric companies.\n\n## How to send massive payments to 3rd party organizations \n1. Get a template using the endpoint **POST /tpp/generatemasspaymentssample**\n2. Modify the sample for your needs upload it with the file api and send it for  process with the **POST /tpp/masspayments**  \n\n## Massive Transfers Service\n\nMassive Transfers Service provides the ability to send massive transfers.\n## How to create massive transfers file\n1. Get a template using the endpoint **POST /massiveTransfers/generateMassTransfersSample**\n2. Modify the sample for your needs upload it with the file api and send it for validation with the **POST /massiveTransfers/verifyFile**\n3. Send it for proccess with the **POST /massiveTransfers/payFile**\n\n## File API Command Line Interface (CLI)\n\nAs stated above, you can use this API from your console application by utilizing the FileAPI_CLI tool. FileAPI_CLI tool is a complete command-line interface that enables you to configure or execute commands from your command-line environment.  \nBy utilizing the File API CLI you enable a machine-to-machine connection and communication. You can integrate the CLI to your systems and use the File API through your software and applications.\n\n### Running the CLI\nThe application leverages the .Net Core Runtime library to be able to conform to the multiplatform requirements. In order to run the application the current .Net Core Runtime for your environment must be downloaded and installed (https://dotnet.microsoft.com/download).\n\nThe application is run through CMD by navigating to the location of the exported  \"FIleAPI_CLI.dll\" file (in most cases the bin file of the project will contain said .dll)  and using the command 'dotnet' followed by the .dll of the app and the accompanying  parameters as described further below in these instructions (Examples Section). (the location needs to include the configuration files \"appSettings.json\" )\n\n### Configuration\nThe FileAPI_CLI tool enables you to configure a .json file necessary for setting up authorization or proxy for application endpoints or the parameter values used in each command. \n1. **appSettings.json** Within the \"appSettings.json\" file, the information about authorization and proxy application endpoints are configured.\n     \n     \"Password\" grant type is used for the **authorization**.\n     You will need to **contact us** to provide you access for the \"Password\" grant type authorization.\n     By providing the client_id and client_secret of the APP that you created and subscribed to the FILE MANAGEMENT PLATFORM, and your own credentials (username, password) that you use to sign in the NBG Technology HUB, the CLI will authorize you and perform the required operation.\n     \n     \"AuthorizationServer\": \"https://my.nbg.gr/identity/\" \n\n     \"client_id\": \"client_id_guid\" \n\n     \"client_secret\": \"client_secret_guid\" \n\n     \"appusername\": \"your_portal_username\" \n\n      \\* \"password\": \"your_portal_password\"\n     \n     For users using Developer Portal credentials:\n     \"acr_values\":  \"provider:1\"\n     \n     For users using iBank credentials:\n     \"acr_values\":  \"provider:5\"\n     \n     It is suggested to use \"acr_values\":  \"provider:1\" for sandbox calls and \"acr_values\":  \"provider:5\" for production calls.\n\n     For ethnofiles calls the ethnofiles scope should also be added to the \"scope\".\n\n\t For sandbox calls your sandbox_id also needs to be provided here.\"sandbox_id\": \"MyUniqueSandbox\".\n\n    Set the EnableEthnofilesNew flag to:\n\t - false if you want to use the old Ethnofiles flow (will be deprecated in the next version)\n\t - true  if you want to use the new Ethnofiles flow (recommended)\n\n\n2.  \\* **Password Encryption** You can encrypt your password in the **appsettings.json** by running the **setpassword** command and providing it. The system will re-write your appsettings.json and replace the password value with the encrypted one. _In addition, the safe\\_password flag **must** be set to true in the appsettings.json in order to use the encrypted password._ \n \n\n\n3. **appsetting.json** Additionally within different sections, the default parameter values used in each command, the logging levels and the email notifications are configured. \n \n\nFor a **quick start** on FileAPI_CLI please visit: [https://github.com/myNBGcode/FileAPI_Cli_V4_1/blob/main/QuickGuide.txt](https://github.com/myNBGcode/FileAPI_Cli_V4_1/blob/main/QuickGuide.txt)\n### Commands\n\nThe FileAPI_CLI offers a set of different commands that you can utilize:\n\nFiles:\n1. upload: Upload a file from a specified path\n\n2. download: Download a file by its GUID, in a specified directory\n\n3. addusertags: Add user tags to a file \n\n4. removeusertags: Remove user tags from a file\n\n\tMore File Api commands are available and can be used to communicate with more nbg services like ethnofiles.\n\n\t**Upload Example:**\n\n\t*> .\\FileapiCli.exe upload -i \"C:\\TestFiles\\CUS2BANK1234002020021201.FTI\" -d \"Test Ethnofiles file from cli\" -t \"MD5\",\"Ethnofiles\" \n\n\t**Download Example:**\n\n\t*> .\\FileapiCli.exe download -f \"53b322fc-2940-424f-9dad-59aa3168848c\" -d C:\\tmp\\  \n\n\t**Add User Tags Example:**\n\n\t*> .\\FileapiCli.exe addusertags -f \"53b322fc-2940-424f-9dad-59aa3168848c\" -t \"Tag1\",\"Tag2\",\"Tag3\"  \n\n\t**Remove User Tags Example:**\n\n\t*> .\\FileapiCli.exe removeusertags -f \"53b322fc-2940-424f-9dad-59aa3168848c\" -t \"Tag1\",\"Tag2\",\"Tag3\"  \n\nEthnofiles:\n1. processenthofilesfile: To upload,validate and send a file to the Ethnofiles system\n\n\t**Process Ethnofiles File Example:**\n\n\t*> .\\FileapiCli.exe processenthofilesfile -i \"C:\\TestFiles\\CUS2BANK7777002020021201.FTI\" -d \"Test Ethnofiles file from cli\" -t \"MD5\",\"Ethnofiles\"  --idfield 100 --rowcount 2 --totalsum 0.45\n\n\t In appsettings \"DebtorName\": \"{anyname}\", \"DebtorIBan\": \"IbanThatWillBeTheSourceOfTheMoney\" must be filled before run\n\nThird Party Payments:\n1. samplemasspayment: To get a sample for all available payments\n2. masspayment: To upload and send massive TPP payments\n3. masspaymentoutcome: To download a file with the outcome of the mass payments \n\n\t**Sample Mass Bill Payments Example:**\n\n\t *> .\\FileapiCli.exe samplemasspayment --fileType \"json\" --downloadfolder C:\\tmp\\ \n\n\t*>.\\FileapiCli.exe samplemasspayment --fileType \"csv\" --downloadfolder C:\\tmp\\ \n\n\t*>.\\FileapiCli.exe samplemasspayment --fileType \"xml\" --downloadfolder C:\\tmp\\\n\n\t**Execute Mass Bill  Payments File Example:**\n\n\t *> .\\FileapiCli.exe masspayment -i \"C:\\TestFiles\\Test_MassPayment_File.json\" -d \"Test mass payment file from cli\" -t \"MD5\",\"MassPayment\"  --downloadfolder C:\\tmp\\ \n\n\tIn appsettings \"DebtorName\": \"{anyname}\", \"DebtorTelephone\": \"{anytelephone}\",\"DebtorIBan\": \"IbanThatWillBeTheSourceOfTheMoney\",\"Ccy\": \"EUR\" must be filled before run\n\n\t**Mass Bill Payments Outcome Example:**\n\n\t *> .\\FileapiCli.exe masspaymentoutcome --fileid \"615432d2-550a-45d7-a4ed-af1930fe1bfc\" --downloadfolder C:\\tmp\\\n\nMassive Transfers:\n1. samplemasstransfers: To download a sample massive transfers file\n2. masstransferscredit: To execute mass credit transfers\n3. masstransferscreditoutcome: To download a file with the outcome of the mass transfers \n\n\t**Sample Mass Transfers Example:**\n\n\t *> .\\FileapiCli.exe samplemasstransfers --fileType \"xml\" --downloadfolder C:\\tmp\\\n\n\t  *> .\\FileapiCli.exe samplemasstransfers --fileType \"csv\" --downloadfolder C:\\tmp\\ \n\n\t**Execute Mass Transfers File Example:**\n\n\t *> .\\FileapiCli.exe masstransferscredit -i \"C:\\tmp\\MassiveTransfersETE.csv\" --debitAccount \"04054685740\" \n\n\t*> .\\FileapiCli.exe masstransferscredit -i \"C:\\tmp\\MassiveTransfersETE.csv\" --d \"Test mass credit transfers file from cli\" --debitAccount \"04054685740\" --isPayroll false \n\n\t**Mass Transfers Outcome Example:** \n\n\t*> .\\FileapiCli.exe masstransferscreditoutcome --fileid \"57ae2483-1588-4f94-a6f5-913ffe7dba66\" --downloadfolder C:\\tmp\\\n\nFor **more information** on how to use FileAPI_CLI please visit: [https://github.com/myNBGcode/FileAPI_Cli_V4_1/blob/main/BasicInstructions.txt](https://github.com/myNBGcode/FileAPI_Cli_V4_1/blob/main/BasicInstructions.txt) \n## Authentication and Authorization (OAuth2) \nThis API version uses the OAuth2 protocol for authentication and authorization, which means that a Bearer (access token) should be acquired. An access token can be retrieved using the client_id and client_secret of the APP that you created and subscribed in this API, and your own credentials (username, password) that you use to sign in the NBG Technology HUB. The scopes are defined below:\n\n **Sandbox Scopes**: openid profile ibank_profile sandbox-file-api-v4\n\n**Production Scopes**: openid profile ibank_profile file-api-v4\n\n **Authorization Endpoint**: https://my.nbg.gr/identity/connect/authorize\n\n**Token Endpoint**: https://my.nbg.gr/identity/connect/token\n\n See more [here](https://developer.nbg.gr/oauth-document#AuthorizationCodeflow)\n## Create your Sandbox\nSandboxes are self - contained testing environments that provide a simple way of testing the API without any real impact, meaning that no personal or financial data is used.\n\nYou can create **your Sandbox** by invoking the **POST** /api/sandbox call by simply providing an “id” as your sandbox id and naming it almost anything you like.\n\n **Moreover you should provide the name (userId) of the user that is going to be created in the default data. The 'userId' must be the same as the username of the logged in user in the NBG Technology Hub.**\n\n**_Important!_** Don't lose your sandbox_id, since you will need it for all the API calls. \n\n Sandbox endpoints are not included in the production version API.\n## Start Testing\nOnce you have your sandbox_id, you can start invoking the rest of the operations by providing the mandatory http header **sandbox_id** and the other required information on the _“request body payload”_ (e.g. “userId”).\n## Important notes\nRequest headers:\n1. Each request **_MUST_** have a new GUID passed to request.header.ID\n2. Pass your client_id to request.header.application\n## Feedback and Questions ## \nWe would love to hear your feedback and answer your questions. Send us at **developer@nbg.gr**.\n\n ------------------------------------------------------------------------------------------\n\n [Sandbox Postman Collection](https://github.com/NBG-Developer-Portal/File-API/tree/master/v4.1)\n------------------------------------------------------------------------------------------\n\nTo gain access to the Postman Collection please email us your Github account at **developer@nbg.gr** to invite you to our repository.\n\n# Authentication\n\n<!-- ReDoc-Inject: <security-definitions> -->",
+    "contact": {
+      "name": "NBG",
+      "url": "https://developer.nbg.gr/",
+      "email": "developer@nbg.gr"
+    },
+    "version": "v4.1"
+  },
+  "servers": [
+    {
+      "url": "https://apis.nbg.gr/sandbox/file/oauth2/v4.1",
+      "description": "Sandbox File Api Server"
+    },
+    {
+      "url": "https://services.nbg.gr/apis/fileapi/v4.1",
+      "description": "Production File Api Server"
+    },
+    {
+      "url": "https://services.nbg.gr/apis/ethnofiles.cli.api/v1",
+      "description": "Production Ethnofiles File Api Server"
+    }
+  ],
+  "security": [
+    {
+      "Client-Id": [],
+      "Authorization-Code-Token": [
+        "openid profile ibank_profile sandbox-file-api-v4",
+        "openid profile ibank_profile file-api-v4"
+      ],
+      "Client-Credentials-Token": [
+        "sandbox-file-api-v4",
+        "file-api-v4"
+      ]
+    }
+  ],
+  "paths": {
+    "/files/upload-initiation": {
+      "post": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Initiates upload request.",
+        "description": "Initiates upload request. The response object contains information about the chunks (and their size) that the initial file should be seperated. Moreover the file identifier is returned.",
+        "operationId": "InitiateUpload",
+        "parameters": [
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Upload Initiation Request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UploadInitiationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadedFile"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "request"
+      }
+    },
+    "/files/{fileId}/upload": {
+      "put": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Upload chunk.",
+        "description": "Uploads chunk. The upload action is invoked only after the /files/upload-initiation endpoint. The fileId and the chunk size is returned in the /files/upload-initiation endpoint.",
+        "operationId": "UploadChunk",
+        "parameters": [
+          {
+            "name": "fileId",
+            "in": "path",
+            "description": "File identifier",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Upload Request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UploadRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericResponse"
+                }
+              }
+            }
+          },
+          "308": {
+            "description": "Range",
+            "content": {}
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "request"
+      }
+    },
+    "/files/{fileId}/{chunkPart}": {
+      "get": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Downloads a file.",
+        "description": "Downloads a file by specifying chunk by chunk. If the file is seperated only in one chunk just specify chunkPart 1. If file is seperated in more that one chunk, this action should be invoked multiple times.",
+        "operationId": "DownloadFile",
+        "parameters": [
+          {
+            "name": "chunkPart",
+            "in": "path",
+            "description": "Chunk part",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "requester",
+            "in": "header",
+            "description": "Requester, with format 'registry:id'",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "subject",
+            "in": "header",
+            "description": "Subject, with format 'registry:id'",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fileId",
+            "in": "path",
+            "description": "File identifier",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileContent"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/files/{fileId}": {
+      "get": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Retrieves a file.",
+        "description": "Retrieves a file metadata. This action can be used in order to be informed of a file number of chunks that is seperated in order to download them.",
+        "operationId": "GetFile",
+        "parameters": [
+          {
+            "name": "requester",
+            "in": "header",
+            "description": "Requester, with format 'registry:id'",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "subject",
+            "in": "header",
+            "description": "Subject, with format 'registry:id'",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fileId",
+            "in": "path",
+            "description": "File identifier",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileDetails"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Updates a file.",
+        "description": "Updates a file based on the requested data, only the filled values are used.",
+        "operationId": "UpdateFile",
+        "parameters": [
+          {
+            "name": "fileId",
+            "in": "path",
+            "description": "File identifier",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Update File Request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateFileRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "request"
+      },
+      "delete": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Deletes a file.",
+        "description": "A file is deleted, be careful! Only user with 'canDelete' permission can complete this operation.",
+        "operationId": "DeleteFile",
+        "parameters": [
+          {
+            "name": "requester",
+            "in": "header",
+            "description": "Requester, with format 'registry:id'",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "subject",
+            "in": "header",
+            "description": "Subject, with format 'registry:id'",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fileId",
+            "in": "path",
+            "description": "The file identifier",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/files/status/{fileId}": {
+      "put": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Update file status",
+        "description": "The status update is restricted from \"Completed\" to \"Immutable\".",
+        "operationId": "UpdateStatus",
+        "parameters": [
+          {
+            "name": "fileId",
+            "in": "path",
+            "description": "File identifier",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Update Status Request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStatusRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "request"
+      }
+    },
+    "/files": {
+      "get": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Gets file list.",
+        "description": "The user file list is returned alongside the files that are shared.",
+        "operationId": "GetFileList",
+        "parameters": [
+          {
+            "name": "requester",
+            "in": "header",
+            "description": "Requester, with format 'registry:id'",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "subject",
+            "in": "header",
+            "description": "Subject, with format 'registry:id'",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "userTags",
+            "in": "header",
+            "description": "User custom tag, used like a hashtag",
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "uniqueItems": false,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "systemTags",
+            "in": "header",
+            "description": "System tag e.g. EthnofileSystemResponse",
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "uniqueItems": false,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FileDetails"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/files/{fileId}/share/{sharedUserRegistry}/{sharedUserId}": {
+      "put": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Shares a file.",
+        "description": "A file is shared to an external user.",
+        "operationId": "ShareFile",
+        "parameters": [
+          {
+            "name": "sharedUserRegistry",
+            "in": "path",
+            "description": "Shared user registry e.g. IBank",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sharedUserId",
+            "in": "path",
+            "description": "Shared user id e.g. 123456",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fileId",
+            "in": "path",
+            "description": "The file identifier",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShareFileRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "request"
+      },
+      "delete": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Revokes share to a file.",
+        "description": "A file share is revoked from an external user. The access cannot be revoked to the user that created it.",
+        "operationId": "RevokeShareFile",
+        "parameters": [
+          {
+            "name": "requester",
+            "in": "header",
+            "description": "Requester, with format 'registry:id'",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "subject",
+            "in": "header",
+            "description": "Subject, with format 'registry:id'",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sharedUserRegistry",
+            "in": "path",
+            "description": "Shared user registry e.g. IBank",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sharedUserId",
+            "in": "path",
+            "description": "Shared user id e.g. 123456",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fileId",
+            "in": "path",
+            "description": "The file identifier",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Folders": {
+      "get": {
+        "tags": [
+          "Folders"
+        ],
+        "summary": "Get the folder list.",
+        "description": "The created/shared folders are returned.",
+        "operationId": "GetFolders",
+        "parameters": [
+          {
+            "name": "requester",
+            "in": "header",
+            "description": "Requester, with format 'registry:id'",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "subject",
+            "in": "header",
+            "description": "Subject, with format 'registry:id'",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FolderInner"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Folders"
+        ],
+        "summary": "Creates a folder.",
+        "description": "A folder is created based on the requested data e.g. name, description e.t.c.",
+        "operationId": "CreateFolder",
+        "parameters": [
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Create Folder Request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FolderRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateFolderResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "request"
+      }
+    },
+    "/Folders/{folderId}": {
+      "put": {
+        "tags": [
+          "Folders"
+        ],
+        "summary": "Updates a folder.",
+        "description": "A folder is updated based on the requested data e.g. name, description e.t.c. Only the filled values are used.",
+        "operationId": "UpdateFolder",
+        "parameters": [
+          {
+            "name": "folderId",
+            "in": "path",
+            "description": "The folder identifier",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateFolderRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "request"
+      },
+      "delete": {
+        "tags": [
+          "Folders"
+        ],
+        "summary": "Deletes a folder.",
+        "description": "A folder is deleted. Be careful the containing files are deleted also! Only user with 'canDelete' permission can complete this operation.",
+        "operationId": "DeleteFolder",
+        "parameters": [
+          {
+            "name": "requester",
+            "in": "header",
+            "description": "Requester, with format 'registry:id'",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "subject",
+            "in": "header",
+            "description": "Subject, with format 'registry:id'",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "folderId",
+            "in": "path",
+            "description": "The folder identifier",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Folders/{folderId}/share/{sharedUserRegistry}/{sharedUserId}": {
+      "put": {
+        "tags": [
+          "Folders"
+        ],
+        "summary": "Shares a folder.",
+        "description": "A folder is shared to an external user.",
+        "operationId": "ShareFolder",
+        "parameters": [
+          {
+            "name": "sharedUserRegistry",
+            "in": "path",
+            "description": "Shared user registry e.g. IBank",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sharedUserId",
+            "in": "path",
+            "description": "Shared user id e.g. 123456",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "folderId",
+            "in": "path",
+            "description": "The folder identifier",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Share Folder Request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShareFolderRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "request"
+      },
+      "delete": {
+        "tags": [
+          "Folders"
+        ],
+        "summary": "Revoke share to a folder.",
+        "description": "A folder share is revoked from an external user. The access cannot be revoked to the user that created it.",
+        "operationId": "RevokeShareFolder",
+        "parameters": [
+          {
+            "name": "requester",
+            "in": "header",
+            "description": "Requester, with format 'registry:id'",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "subject",
+            "in": "header",
+            "description": "Subject, with format 'registry:id'",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sharedUserRegistry",
+            "in": "path",
+            "description": "Shared user registry e.g. IBank",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sharedUserId",
+            "in": "path",
+            "description": "Shared user id e.g. 123456",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "folderId",
+            "in": "path",
+            "description": "The folder identifier",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ethnofiles/populatefileTypes": {
+      "post": {
+        "tags": [
+          "Ethnofiles"
+        ],
+        "summary": "Get the available ethnofiles types for the specified user (Deprecated).",
+        "description": "Get the available ethnofiles types for the specified user.",
+        "operationId": "PopulateFileTypes",
+        "parameters": [
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Populate File Types Request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Request_1_PopulateFiletypesRequest_"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_1_PopulateFiletypesResponse_"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "request"
+      }
+    },
+    "/ethnofiles/sendfiletoethnofiles": {
+      "post": {
+        "tags": [
+          "Ethnofiles"
+        ],
+        "summary": "Sends a file to ethnofiles (Deprecated).",
+        "description": "Sends a file that is uploaded to the file management platform, to the ethnofiles system using its file id.",
+        "operationId": "SendFileToEthnofiles",
+        "parameters": [
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Send File To Ethnofiles Request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Request_1_SendFileToEthnofilesRequest_"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_1_UpdateXactionIdResponse_"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "request"
+      }
+    },
+    "/validation/filename": {
+      "post": {
+        "tags": [
+          "Ethnofiles"
+        ],
+        "summary": "Validate the file name format of an xml file.",
+        "description": "Validate the file name format of an xml file.",
+        "operationId": "ValidationFilenameRequest",
+        "parameters": [
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Validate Ethnofiles Filename Request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Request_1_ValidateFilenameRequest_"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericResponse_"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "request"
+      }
+    },
+    "/validation/file": {
+      "post": {
+        "tags": [
+          "Ethnofiles"
+        ],
+        "summary": "Perform validations on an incoming file.",
+        "description": "Perform validations on an incoming file.",
+        "operationId": "ValidationFileRequest",
+        "parameters": [
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Validate Ethnofiles File Request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestOfValidateFileRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericResponse_"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "request"
+      }
+    },
+    "/ethnofiles/retrieveCustomerApplications": {
+      "post": {
+        "tags": [
+          "Ethnofiles"
+        ],
+        "summary": "Retrieves customer applications.",
+        "description": "Retrieves customer applications.",
+        "operationId": "RetrieveCustomerApplications",
+        "parameters": [
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Request_1_RetrieveCustomerApplicationsRequest_"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_1_RetrieveCustomerApplicationsResponse_"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "request"
+      }
+    },
+    "/ethnofiles/retrieveFileList": {
+      "post": {
+        "tags": [
+          "Ethnofiles"
+        ],
+        "summary": "Retrieves file list for users.",
+        "description": "Retrieves file list for users.",
+        "operationId": "RetrieveFileList",
+        "parameters": [
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Request_1_RetrieveFileListRequest_"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_1_RetrieveFileListResponse_"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "request"
+      }
+    },
+    "/ethnofiles/retrieveFile": {
+      "post": {
+        "tags": [
+          "Ethnofiles"
+        ],
+        "summary": "Retrieves file for user.",
+        "description": "Retrieves file for user.",
+        "operationId": "RetrieveFile",
+        "parameters": [
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Request_1_RetrieveFileRequest_"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_1_RetrieveFileResponse_"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "request"
+      }
+    },
+    "/ethnofiles/sendFile": {
+      "post": {
+        "tags": [
+          "Ethnofiles"
+        ],
+        "summary": "Sends file to Ethnofiles",
+        "description": "Sends file to Ethnofiles",
+        "operationId": "SendFile",
+        "parameters": [
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Request_1_SendFileRequest_"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_1_SendFileResponse_"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "request"
+      }
+    },
+    "/ethnofiles/sepaconvert": {
+      "post": {
+        "tags": [
+          "Ethnofiles"
+        ],
+        "summary": "Sends a file for conversion to sepa.",
+        "description": "Sends a file for conversion to sepa.",
+        "operationId": "SepaConvert",
+        "parameters": [
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SepaConvertRequest_"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SepaConvertResponse_"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "request"
+      }
+    },
+    "/ethnofiles/sepaSetFileStatusAsSent": {
+      "post": {
+        "tags": [
+          "Ethnofiles"
+        ],
+        "summary": "Set file status as sent.",
+        "description": "Set file status as sent.",
+        "operationId": "SepaSetFileStatusAsSent",
+        "parameters": [
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SepaSetFileStatusAsSentRequest_"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SepaSetFileStatusAsSentResponse_"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "request"
+      }
+    },
+    "/tpp/generatemasspaymentssample": {
+      "post": {
+        "tags": [
+          "ThirdPartyPayments"
+        ],
+        "summary": "Generate Mass Payments Sample File",
+        "description": "Generate mass payments sample file. \n\n Supports **JSON, CSV, XML** file formats.\n",
+        "operationId": "GenerateMassPaymentsSample",
+        "parameters": [
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Generate Mass Payment Sample Request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Request_1_GenerateMassPaymentsSampleFileBpRequest_"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_1_GenerateMassPaymentsSampleFileResponse_"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "request"
+      }
+    },
+    "/tpp/masspayments": {
+      "post": {
+        "tags": [
+          "ThirdPartyPayments"
+        ],
+        "summary": "Execute Mass Payments File",
+        "description": "Execute Mass Payments File",
+        "operationId": "MassPayments",
+        "parameters": [
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Execuτe Mass Payment Request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Request_1_MassPaymentsWithFileBpRequest_"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_1_MassPaymentsWithFileResponse_"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "request"
+      }
+    },
+    "/tpp/retrievemasspaymentsoutcome": {
+      "post": {
+        "tags": [
+          "ThirdPartyPayments"
+        ],
+        "summary": "Retrieve mass payments outcome",
+        "description": "Retrieve mass payments outcome",
+        "operationId": "RetrieveMassPaymentsOutcome",
+        "parameters": [
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Retrieve Mass Payment Outcome Request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Request_1_RetrieveMassPaymentsOutcomeWithFileBpRequest_"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_1_RetrieveMassPaymentsWithFileOutcomeResponse_"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "request"
+      }
+    },
+    "/tpp/requestindividualpaymentsstatus": {
+      "post": {
+        "tags": [
+          "ThirdPartyPayments"
+        ],
+        "summary": "Request individual payments status",
+        "description": "Request individual payments status",
+        "operationId": "RequestIndividualPaymentsStatus",
+        "parameters": [
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Request Individual Payments Status Request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Request_1_RequestIndividualPaymentsStatusWithFileBpRequest_"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_1_RequestIndividualPaymentsStatusWithFileResponse_"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "request"
+      }
+    },
+    "/tpp/retrieveindividualpaymentsstatus": {
+      "post": {
+        "tags": [
+          "ThirdPartyPayments"
+        ],
+        "summary": "Retrieve individual payments status",
+        "description": "Retrieve individual payments status",
+        "operationId": "RetrieveIndividualPaymentsStatus",
+        "parameters": [
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Retrieve Individual Payments Status Request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Request_1_RetrieveIndividualPaymentsStatusWithFileBpRequest_"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_1_RetrieveIndividualPaymentsStatusWithFileResponse_"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "request"
+      }
+    },
+    "/tpp/validatemasspaymentsfile": {
+      "post": {
+        "tags": [
+          "ThirdPartyPayments"
+        ],
+        "summary": "Validate mass payments file",
+        "description": "Validate mass payments file",
+        "operationId": "ValidateMassPaymentsFile",
+        "parameters": [
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Validate Mass Payments File Request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Request_1_ValidateMassPaymentsFileBpRequest_"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_1_ValidateMassPaymentsFileResponse_"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "request"
+      }
+    },
+    "/massiveTransfers/generateMassTransfersSample": {
+      "post": {
+        "tags": [
+          "MassiveTransfers"
+        ],
+        "summary": "Generate mass transfers sample file",
+        "description": "Generate mass transfers sample file. \n\n Supports **CSV, XML** file formats.\n",
+        "parameters": [
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MassTransfersSampleRequest_"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MassTransfersSampleResponse_"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/massiveTransfers/verifyFile": {
+      "post": {
+        "tags": [
+          "MassiveTransfers"
+        ],
+        "summary": "Mass Transfers file validation",
+        "description": "Validates a file that contains data for multiple transfers",
+        "parameters": [
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyFileCreditRequest_"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileCreditVerifyResponse_"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/massiveTransfers/payFile": {
+      "post": {
+        "tags": [
+          "MassiveTransfers"
+        ],
+        "summary": "Execute Mass Transfers file",
+        "description": "Execute multiple transactions from a file",
+        "parameters": [
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PayFileCreditRequest_"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayFileResponse_"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/massiveTransfers/retrieveMassTransfersOutcomeCredit": {
+      "post": {
+        "tags": [
+          "MassiveTransfers"
+        ],
+        "summary": "Retrieve Mass Transfers Outcome",
+        "description": "Retrieves the outcome of a list of transfers that were submitted as a file.",
+        "parameters": [
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResultPayCreditWithFileRequest_"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultPayCreditWithFileResponse_"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/massiveTransfers/getMassFiles": {
+      "post": {
+        "tags": [
+          "MassiveTransfers"
+        ],
+        "summary": "Get List of Mass Transfers",
+        "description": "Get list of massive transfers",
+        "parameters": [
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetMassiveTransfersRequest_"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeferredActiveAllResponse_"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/massiveTransfers/getMassFileDetails": {
+      "post": {
+        "tags": [
+          "MassiveTransfers"
+        ],
+        "summary": "Get Mass Transfers details",
+        "description": "Returns transactions for a massive transfers file.",
+        "parameters": [
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "header",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetMassTransfersFileDetailsRequest_"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeferredActiveAllResponse_"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Sandbox": {
+      "post": {
+        "tags": [
+          "Sandbox"
+        ],
+        "summary": "Create a sandbox.",
+        "description": "A Sandbox with default data is created. Simply call by providing an “id” as your sandbox id and naming it almost anything you like. Moreover you should provide the name (userId) of the user that is going to be created in the default data. The 'userId' must be the same as the username of the logged in user in the NBG Technology Hub.",
+        "operationId": "CreateSandbox",
+        "parameters": [
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Create Sandbox Request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SandboxRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SandboxDataModel"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "request"
+      }
+    },
+    "/Sandbox/{sandbox_id}": {
+      "get": {
+        "tags": [
+          "Sandbox"
+        ],
+        "summary": "Export Sandbox",
+        "description": "Export a sandbox",
+        "operationId": "ExportSandbox",
+        "parameters": [
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "path",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SandboxDataModel"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Sandbox"
+        ],
+        "summary": "Import a sandbox.",
+        "description": "Import a sandbox",
+        "operationId": "ImportSandbox",
+        "parameters": [
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "path",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Import Sandbox Request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SandboxDataModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SandboxDataModel"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "request"
+      },
+      "delete": {
+        "tags": [
+          "Sandbox"
+        ],
+        "summary": "Delete Sandbox",
+        "description": "Deleta a sandbox",
+        "operationId": "DeleteSandbox",
+        "parameters": [
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "description": "A guid that uniquely identifies your request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sandbox_id",
+            "in": "path",
+            "description": "The unique name of your Sandbox",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "content": {}
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "UploadInitiationRequest": {
+        "required": [
+          "fileName",
+          "fileSize",
+          "requester",
+          "subject"
+        ],
+        "type": "object",
+        "properties": {
+          "folderId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "fileName": {
+            "type": "string"
+          },
+          "fileDescription": {
+            "type": "string"
+          },
+          "userTags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "fileSize": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "metadata": {
+            "type": "string"
+          },
+          "fileIcon": {
+            "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$",
+            "type": "string",
+            "format": "byte"
+          },
+          "requester": {
+            "$ref": "#/components/schemas/RequestEntity"
+          },
+          "subject": {
+            "$ref": "#/components/schemas/RequestEntity"
+          },
+          "claims": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {}
+            }
+          }
+        }
+      },
+      "RequestEntity": {
+        "required": [
+          "id",
+          "registry"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "registry": {
+            "type": "string"
+          }
+        }
+      },
+      "UploadedFile": {
+        "type": "object",
+        "properties": {
+          "fileId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "fileChunks": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fileChunkSize": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "UploadRequest": {
+        "required": [
+          "chunkPart",
+          "fileContent",
+          "requester",
+          "subject"
+        ],
+        "type": "object",
+        "properties": {
+          "fileContent": {
+            "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$",
+            "type": "string",
+            "format": "byte"
+          },
+          "chunkPart": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "requester": {
+            "$ref": "#/components/schemas/RequestEntity"
+          },
+          "subject": {
+            "$ref": "#/components/schemas/RequestEntity"
+          },
+          "claims": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {}
+            }
+          }
+        }
+      },
+      "GenericResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "string"
+          }
+        }
+      },
+      "FileContent": {
+        "type": "object",
+        "properties": {
+          "fileContent": {
+            "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$",
+            "type": "string",
+            "format": "byte"
+          }
+        }
+      },
+      "FileDetails": {
+        "type": "object",
+        "properties": {
+          "fileId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "fileName": {
+            "type": "string"
+          },
+          "fileDescription": {
+            "type": "string"
+          },
+          "fileSize": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "chunksUploaded": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalChunks": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userTags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "systemTags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "WaitingForUpload",
+              "WaitingForMerge",
+              "MergingChunks",
+              "Completed",
+              "Deleted",
+              "Immutable"
+            ]
+          },
+          "statusReason": {
+            "type": "string"
+          },
+          "metadata": {
+            "type": "string"
+          },
+          "fileIcon": {
+            "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$",
+            "type": "string",
+            "format": "byte"
+          },
+          "createdByUserId": {
+            "type": "string"
+          },
+          "createdByUserRegistry": {
+            "type": "string"
+          },
+          "updatedByUserId": {
+            "type": "string"
+          },
+          "updatedByUserRegistry": {
+            "type": "string"
+          },
+          "createdOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedOn": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "UpdateFileRequest": {
+        "required": [
+          "requester",
+          "subject"
+        ],
+        "type": "object",
+        "properties": {
+          "fileName": {
+            "type": "string"
+          },
+          "userTags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "fileDescription": {
+            "type": "string"
+          },
+          "fileIcon": {
+            "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$",
+            "type": "string",
+            "format": "byte"
+          },
+          "folderId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "useFolderId": {
+            "type": "boolean"
+          },
+          "requester": {
+            "$ref": "#/components/schemas/RequestEntity"
+          },
+          "subject": {
+            "$ref": "#/components/schemas/RequestEntity"
+          },
+          "claims": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {}
+            }
+          }
+        }
+      },
+      "UpdateStatusRequest": {
+        "required": [
+          "requester",
+          "subject"
+        ],
+        "type": "object",
+        "properties": {
+          "fileStatus": {
+            "type": "string",
+            "enum": [
+              "WaitingForUpload",
+              "WaitingForMerge",
+              "MergingChunks",
+              "Completed",
+              "Deleted",
+              "Immutable"
+            ]
+          },
+          "requester": {
+            "$ref": "#/components/schemas/RequestEntity"
+          },
+          "subject": {
+            "$ref": "#/components/schemas/RequestEntity"
+          },
+          "claims": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {}
+            }
+          }
+        }
+      },
+      "ShareFileRequest": {
+        "required": [
+          "permissions",
+          "requester",
+          "subject"
+        ],
+        "type": "object",
+        "properties": {
+          "permissions": {
+            "$ref": "#/components/schemas/UserPermissions"
+          },
+          "requester": {
+            "$ref": "#/components/schemas/RequestEntity"
+          },
+          "subject": {
+            "$ref": "#/components/schemas/RequestEntity"
+          },
+          "claims": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {}
+            }
+          }
+        }
+      },
+      "FolderRequest": {
+        "required": [
+          "folderName",
+          "requester",
+          "subject"
+        ],
+        "type": "object",
+        "properties": {
+          "folderName": {
+            "type": "string"
+          },
+          "folderDescription": {
+            "type": "string"
+          },
+          "folderIcon": {
+            "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$",
+            "type": "string",
+            "format": "byte"
+          },
+          "parentFolderId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "requester": {
+            "$ref": "#/components/schemas/RequestEntity"
+          },
+          "subject": {
+            "$ref": "#/components/schemas/RequestEntity"
+          },
+          "claims": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {}
+            }
+          }
+        }
+      },
+      "CreateFolderResponse": {
+        "required": [
+          "folderId"
+        ],
+        "type": "object",
+        "properties": {
+          "folderId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "FolderInner": {
+        "type": "object",
+        "properties": {
+          "folderId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "folderName": {
+            "type": "string"
+          },
+          "folderDescription": {
+            "type": "string"
+          },
+          "folderIcon": {
+            "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$",
+            "type": "string",
+            "format": "byte"
+          },
+          "subFolders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FolderInner"
+            }
+          },
+          "createdByUserId": {
+            "type": "string"
+          },
+          "createdByUserRegistry": {
+            "type": "string"
+          },
+          "updatedByUserId": {
+            "type": "string"
+          },
+          "updatedByUserRegistry": {
+            "type": "string"
+          },
+          "createdOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedOn": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "UpdateFolderRequest": {
+        "required": [
+          "requester",
+          "subject"
+        ],
+        "type": "object",
+        "properties": {
+          "folderName": {
+            "type": "string"
+          },
+          "folderDescription": {
+            "type": "string"
+          },
+          "folderIcon": {
+            "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$",
+            "type": "string",
+            "format": "byte"
+          },
+          "parentFolderId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "requester": {
+            "$ref": "#/components/schemas/RequestEntity"
+          },
+          "subject": {
+            "$ref": "#/components/schemas/RequestEntity"
+          },
+          "claims": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {}
+            }
+          }
+        }
+      },
+      "ShareFolderRequest": {
+        "required": [
+          "permissions",
+          "requester",
+          "subject"
+        ],
+        "type": "object",
+        "properties": {
+          "permissions": {
+            "$ref": "#/components/schemas/UserPermissions"
+          },
+          "requester": {
+            "$ref": "#/components/schemas/RequestEntity"
+          },
+          "subject": {
+            "$ref": "#/components/schemas/RequestEntity"
+          },
+          "claims": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {}
+            }
+          }
+        }
+      },
+      "SandboxFolder": {
+        "type": "object",
+        "properties": {
+          "FolderId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "FolderName": {
+            "type": "string"
+          },
+          "FolderDescription": {
+            "type": "string"
+          },
+          "FolderIcon": {
+            "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$",
+            "type": "string",
+            "format": "byte"
+          },
+          "SubFolders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SandboxFolder"
+            }
+          },
+          "createdByUserId": {
+            "type": "string"
+          },
+          "createdByUserRegistry": {
+            "type": "string"
+          },
+          "updatedByUserId": {
+            "type": "string"
+          },
+          "updatedByUserRegistry": {
+            "type": "string"
+          },
+          "createdOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedOn": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Request_1_PopulateFiletypesRequest_": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/components/schemas/RequestHeader"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/PopulateFiletypesRequest"
+          }
+        }
+      },
+      "PopulateFiletypesRequest": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          }
+        }
+      },
+      "Response_1_PopulateFiletypesResponse_": {
+        "type": "object",
+        "properties": {
+          "payload": {
+            "$ref": "#/components/schemas/PopulateFiletypesResponse"
+          },
+          "exception": {
+            "$ref": "#/components/schemas/ResponseMessage"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseMessage"
+            }
+          },
+          "executionTime": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "PopulateFiletypesResponse": {
+        "type": "object",
+        "properties": {
+          "fileTypeList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EthnofilesFileTypesResponse"
+            }
+          }
+        }
+      },
+      "EthnofilesFileTypesResponse": {
+        "type": "object",
+        "properties": {
+          "descriptionField": {
+            "type": "string"
+          },
+          "filenamePatternField": {
+            "type": "string"
+          },
+          "idField": {
+            "type": "string"
+          },
+          "recallXMLFileField": {
+            "type": "boolean"
+          },
+          "validationTypeField": {
+            "type": "string"
+          },
+          "validationTypeFieldSpecified": {
+            "type": "boolean"
+          },
+          "xmlFileField": {
+            "type": "boolean"
+          },
+          "convId": {
+            "type": "string"
+          }
+        }
+      },
+      "Request_1_SendFileToEthnofilesRequest_": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/components/schemas/RequestHeader"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/SendFileToEthnofilesRequest"
+          }
+        }
+      },
+      "SendFileToEthnofilesRequest": {
+        "type": "object",
+        "properties": {
+          "fileApiFileId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "fileTypeId": {
+            "type": "string"
+          },
+          "rowCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalSum": {
+            "type": "number",
+            "format": "double"
+          },
+          "tanNumber": {
+            "type": "string"
+          },
+          "locale": {
+            "type": "string"
+          },
+          "inboxId": {
+            "type": "string"
+          },
+          "xactionId": {
+            "type": "string"
+          },
+          "isSmsOtp": {
+            "type": "boolean"
+          },
+          "convId": {
+            "type": "string"
+          },
+          "xmlFileField": {
+            "type": "boolean"
+          },
+          "debtorName": {
+            "type": "string"
+          },
+          "debtorIBAN": {
+            "type": "string"
+          },
+          "fileId": {
+            "type": "string"
+          },
+          "acceptTerms": {
+            "type": "boolean"
+          },
+          "acceptTrnTerms": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Response_1_UpdateXactionIdResponse_": {
+        "type": "object",
+        "properties": {
+          "payload": {
+            "$ref": "#/components/schemas/UpdateXactionIdResponse"
+          },
+          "exception": {
+            "$ref": "#/components/schemas/ResponseMessage"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseMessage"
+            }
+          },
+          "executionTime": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "UpdateXactionIdResponse": {
+        "type": "object",
+        "properties": {
+          "inboxId": {
+            "type": "string"
+          },
+          "xactionId": {
+            "type": "string"
+          },
+          "isDeferred": {
+            "type": "boolean"
+          },
+          "tanCheck": {
+            "type": "string"
+          },
+          "transactionDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Request_1_ValidateFilenameRequest_": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/components/schemas/RequestHeader"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/ValidateFilenameRequest"
+          }
+        }
+      },
+      "ValidateFilenameRequest": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "fileTypeId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fileName": {
+            "type": "string"
+          }
+        }
+      },
+      "GenericResponse_": {
+        "type": "object",
+        "properties": {
+          "payload": {
+            "$ref": "#/components/schemas/GenericResponse"
+          },
+          "exception": {
+            "$ref": "#/components/schemas/ResponseMessage"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseMessage"
+            }
+          },
+          "executionTime": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "RequestOfValidateFileRequest": {
+        "required": [
+          "header",
+          "payload"
+        ],
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/components/schemas/RequestHeader"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/ValidateFileRequest"
+          }
+        }
+      },
+      "ValidateFileRequest": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "fileTypeId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fileApiFileId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sepaFileId": {
+            "type": "string"
+          },
+          "convId": {
+            "type": "string"
+          },
+          "totalRecords": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalAmount": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "Request_1_RetrieveCustomerApplicationsRequest_": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/components/schemas/RequestHeader"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/RetrieveCustomerApplicationsRequest"
+          }
+        }
+      },
+      "RetrieveCustomerApplicationsRequest": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "fileDirection": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "Response_1_RetrieveCustomerApplicationsResponse_": {
+        "type": "object",
+        "properties": {
+          "payload": {
+            "$ref": "#/components/schemas/RetrieveCustomerApplicationsResponse"
+          },
+          "exception": {
+            "$ref": "#/components/schemas/ResponseMessage"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseMessage"
+            }
+          },
+          "executionTime": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "RetrieveCustomerApplicationsResponse": {
+        "type": "object",
+        "properties": {
+          "customerApplications": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomerApplication"
+            }
+          }
+        }
+      },
+      "CustomerApplication": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "filenamePattern": {
+            "type": "string"
+          },
+          "validationType": {
+            "type": "string"
+          },
+          "conversionId": {
+            "type": "string"
+          },
+          "isXml": {
+            "type": "boolean"
+          },
+          "isRecallXml": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Request_1_RetrieveFileListRequest_": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/components/schemas/RequestHeader"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/RetrieveFileListRequest"
+          }
+        }
+      },
+      "RetrieveFileListRequest": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "fileDirection": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dateFrom": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dateTo": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isHistorical": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Response_1_RetrieveFileListResponse_": {
+        "type": "object",
+        "properties": {
+          "payload": {
+            "$ref": "#/components/schemas/RetrieveFileListResponse"
+          },
+          "exception": {
+            "$ref": "#/components/schemas/ResponseMessage"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseMessage"
+            }
+          },
+          "executionTime": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "RetrieveFileListResponse": {
+        "type": "object",
+        "properties": {
+          "customerApplicationFiles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomerApplicationFile"
+            }
+          }
+        }
+      },
+      "CustomerApplicationFile": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "customerApplicationId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "filename": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "fileDirection": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "xActionInfo": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isHistorical": {
+            "type": "boolean"
+          },
+          "appVersion": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "Request_1_RetrieveFileRequest_": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/components/schemas/RequestHeader"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/RetrieveFileRequest"
+          }
+        }
+      },
+      "RetrieveFileRequest": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "customerApplicationFileId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fileDirection": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isHistorical": {
+            "type": "boolean"
+          },
+          "appVersion": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "Response_1_RetrieveFileResponse_": {
+        "type": "object",
+        "properties": {
+          "payload": {
+            "$ref": "#/components/schemas/RetrieveFileResponse"
+          },
+          "exception": {
+            "$ref": "#/components/schemas/ResponseMessage"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseMessage"
+            }
+          },
+          "executionTime": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "RetrieveFileResponse": {
+        "type": "object",
+        "properties": {
+          "fileId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "Request_1_SendFileRequest_": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/components/schemas/RequestHeader"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/SendFileRequest"
+          }
+        }
+      },
+      "SendFileRequest": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "customerApplicationId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fileId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "filename": {
+            "type": "string"
+          },
+          "totalrecords": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalamount": {
+            "type": "number",
+            "format": "double"
+          },
+          "executionDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "debtorName": {
+            "type": "string"
+          },
+          "debtorIBAN": {
+            "type": "string"
+          },
+          "tanNumber": {
+            "type": "string"
+          },
+          "isSmsOtp": {
+            "type": "boolean"
+          },
+          "acceptTerms": {
+            "type": "boolean"
+          },
+          "acceptTrnTerms": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Response_1_SendFileResponse_": {
+        "type": "object",
+        "properties": {
+          "payload": {
+            "$ref": "#/components/schemas/SendFileResponse"
+          },
+          "exception": {
+            "$ref": "#/components/schemas/ResponseMessage"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseMessage"
+            }
+          }
+        }
+      },
+      "SendFileResponse": {
+        "type": "object",
+        "properties": {
+          "customerApplicationFileId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "SepaConvertRequest_": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/components/schemas/RequestHeader"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/SepaConvertRequest"
+          }
+        }
+      },
+      "SepaConvertRequest": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "unconvertedFileId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "customerApplicationId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "conversionId": {
+            "type": "string"
+          },
+          "isXml": {
+            "type": "boolean"
+          },
+          "debtorName": {
+            "type": "string"
+          },
+          "debtorIBAN": {
+            "type": "string"
+          }
+        }
+      },
+      "SepaConvertResponse_": {
+        "type": "object",
+        "properties": {
+          "payload": {
+            "$ref": "#/components/schemas/SepaConvertResponse"
+          },
+          "exception": {
+            "$ref": "#/components/schemas/ResponseMessage"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseMessage"
+            }
+          },
+          "executionTime": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "SepaConvertResponse": {
+        "type": "object",
+        "properties": {
+          "fileId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sepaFileId": {
+            "type": "string"
+          },
+          "sepaFileStatus": {
+            "type": "string"
+          },
+          "xmlTransactions": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "xmlTotalAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "sepaFilename": {
+            "type": "string"
+          }
+        }
+      },
+      "SepaSetFileStatusAsSentRequest_": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/components/schemas/RequestHeader"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/SepaSetFileStatusAsSentRequest"
+          }
+        }
+      },
+      "SepaSetFileStatusAsSentRequest": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "fileId": {
+            "type": "string"
+          },
+          "convId": {
+            "type": "string"
+          }
+        }
+      },
+      "SepaSetFileStatusAsSentResponse_": {
+        "type": "object",
+        "properties": {
+          "payload": {
+            "$ref": "#/components/schemas/SepaSetFileStatusAsSentResponse"
+          },
+          "exception": {
+            "$ref": "#/components/schemas/ResponseMessage"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseMessage"
+            }
+          },
+          "executionTime": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "SepaSetFileStatusAsSentResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Request_1_GenerateMassPaymentsSampleFileBpRequest_": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/components/schemas/RequestHeader"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/GenerateMassPaymentsSampleFileBpRequest"
+          }
+        }
+      },
+      "GenerateMassPaymentsSampleFileBpRequest": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "fileFormat": {
+            "type": "string",
+            "enum": [
+              "JSON",
+              "XML",
+              "CSV"
+            ]
+          }
+        }
+      },
+      "Response_1_GenerateMassPaymentsSampleFileResponse_": {
+        "type": "object",
+        "properties": {
+          "payload": {
+            "$ref": "#/components/schemas/GenerateMassPaymentsSampleFileResponse"
+          },
+          "exception": {
+            "$ref": "#/components/schemas/ResponseMessage"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseMessage"
+            }
+          },
+          "executionTime": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "GenerateMassPaymentsSampleFileResponse": {
+        "type": "object",
+        "properties": {
+          "fileData": {
+            "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$",
+            "type": "string",
+            "format": "byte"
+          }
+        }
+      },
+      "Request_1_MassPaymentsWithFileBpRequest_": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/components/schemas/RequestHeader"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/MassPaymentsWithFileBpRequest"
+          }
+        }
+      },
+      "MassPaymentsWithFileBpRequest": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "fileId": {
+            "type": "string"
+          },
+          "debtorName": {
+            "type": "string"
+          },
+          "debtorTelephone": {
+            "type": "string"
+          },
+          "debtorIBAN": {
+            "type": "string"
+          },
+          "ccy": {
+            "type": "string"
+          },
+          "acceptDuplicate": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Response_1_MassPaymentsWithFileResponse_": {
+        "type": "object",
+        "properties": {
+          "payload": {
+            "$ref": "#/components/schemas/MassPaymentsWithFileResponse"
+          },
+          "exception": {
+            "$ref": "#/components/schemas/ResponseMessage"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseMessage"
+            }
+          },
+          "executionTime": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "MassPaymentsWithFileResponse": {
+        "type": "object",
+        "properties": {
+          "receivedSuccessfully": {
+            "type": "boolean"
+          },
+          "errorMessages": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "Request_1_RetrieveMassPaymentsOutcomeWithFileBpRequest_": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/components/schemas/RequestHeader"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/RetrieveMassPaymentsOutcomeWithFileBpRequest"
+          }
+        }
+      },
+      "RetrieveMassPaymentsOutcomeWithFileBpRequest": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "fileId": {
+            "type": "string"
+          }
+        }
+      },
+      "Response_1_RetrieveMassPaymentsWithFileOutcomeResponse_": {
+        "type": "object",
+        "properties": {
+          "payload": {
+            "$ref": "#/components/schemas/RetrieveMassPaymentsWithFileOutcomeResponse"
+          },
+          "exception": {
+            "$ref": "#/components/schemas/ResponseMessage"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseMessage"
+            }
+          },
+          "executionTime": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "RetrieveMassPaymentsWithFileOutcomeResponse": {
+        "type": "object",
+        "properties": {
+          "fileId": {
+            "type": "string"
+          }
+        }
+      },
+      "Request_1_RequestIndividualPaymentsStatusWithFileBpRequest_": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/components/schemas/RequestHeader"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/RequestIndividualPaymentsStatusWithFileBpRequest"
+          }
+        }
+      },
+      "RequestIndividualPaymentsStatusWithFileBpRequest": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "fileId": {
+            "type": "string"
+          }
+        }
+      },
+      "Response_1_RequestIndividualPaymentsStatusWithFileResponse_": {
+        "type": "object",
+        "properties": {
+          "payload": {
+            "$ref": "#/components/schemas/RequestIndividualPaymentsStatusWithFileResponse"
+          },
+          "exception": {
+            "$ref": "#/components/schemas/ResponseMessage"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseMessage"
+            }
+          },
+          "executionTime": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "RequestIndividualPaymentsStatusWithFileResponse": {
+        "type": "object",
+        "properties": {
+          "receivedSuccessfully": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Request_1_RetrieveIndividualPaymentsStatusWithFileBpRequest_": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/components/schemas/RequestHeader"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/RetrieveIndividualPaymentsStatusWithFileBpRequest"
+          }
+        }
+      },
+      "RetrieveIndividualPaymentsStatusWithFileBpRequest": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "fileId": {
+            "type": "string"
+          }
+        }
+      },
+      "Response_1_RetrieveIndividualPaymentsStatusWithFileResponse_": {
+        "type": "object",
+        "properties": {
+          "payload": {
+            "$ref": "#/components/schemas/RetrieveIndividualPaymentsStatusWithFileResponse"
+          },
+          "exception": {
+            "$ref": "#/components/schemas/ResponseMessage"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseMessage"
+            }
+          },
+          "executionTime": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "RetrieveIndividualPaymentsStatusWithFileResponse": {
+        "type": "object",
+        "properties": {
+          "fileId": {
+            "type": "string"
+          }
+        }
+      },
+      "Request_1_ValidateMassPaymentsFileBpRequest_": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/components/schemas/RequestHeader"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/ValidateMassPaymentsFileBpRequest"
+          }
+        }
+      },
+      "ValidateMassPaymentsFileBpRequest": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "fileId": {
+            "type": "string"
+          }
+        }
+      },
+      "Response_1_ValidateMassPaymentsFileResponse_": {
+        "type": "object",
+        "properties": {
+          "payload": {
+            "$ref": "#/components/schemas/ValidateMassPaymentsFileResponse"
+          },
+          "exception": {
+            "$ref": "#/components/schemas/ResponseMessage"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseMessage"
+            }
+          },
+          "executionTime": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "ValidateMassPaymentsFileResponse": {
+        "type": "object",
+        "properties": {
+          "areAllValid": {
+            "type": "boolean"
+          },
+          "validationErrors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "MassTransfersSampleRequest": {
+        "type": "object",
+        "required": [
+          "userID",
+          "fileFormat"
+        ],
+        "properties": {
+          "userID": {
+            "type": "string",
+            "example": "User1"
+          },
+          "fileFormat": {
+            "type": "string",
+            "example": "CSV"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RequestHeader": {
+        "type": "object",
+        "required": [
+          "id",
+          "application"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Insert a new Uuid for every call",
+            "example": "bf80bcea-7a8b-4a4a-aac3-0ea52f0494e2"
+          },
+          "application": {
+            "type": "string",
+            "description": "Your Client ID",
+            "example": "598A4414-395A-43D6-A9C3-D53A15E6E9F6"
+          }
+        },
+        "additionalProperties": false
+      },
+      "MassTransfersSampleRequest_": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/components/schemas/RequestHeader"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/MassTransfersSampleRequest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "MassTransfersSampleResponse": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "format": "byte",
+            "example": "ewqe"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ErrorSeverity": {
+        "enum": [
+          0,
+          1,
+          2
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "ErrorCategory": {
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "ResponseMessage": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "severity": {
+            "$ref": "#/components/schemas/ErrorSeverity"
+          },
+          "category": {
+            "$ref": "#/components/schemas/ErrorCategory"
+          }
+        },
+        "additionalProperties": false
+      },
+      "MassTransfersSampleResponse_": {
+        "type": "object",
+        "properties": {
+          "payload": {
+            "$ref": "#/components/schemas/MassTransfersSampleResponse"
+          },
+          "exception": {
+            "$ref": "#/components/schemas/ResponseMessage"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseMessage"
+            }
+          },
+          "executionTime": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "example": {
+          "payload": {
+            "content": "R1I5NjAxMTA2NzgwMDAwMDY3ODkwMTIzNDU4OzEwLDAwO0VVUjtURVNUMQ0KR1I5NjAxMTA2NzgwMDAwMDY3ODkwMTIzNDU4OzIwLDAwO0VVUjtURVNUMg0KR1I5NjAxMTA2NzgwMDAwMDY3ODkwMTIzNDU4OzMwLDAwO0VVUjtURVNUMw=="
+          },
+          "executionTime": 0,
+          "messages": null,
+          "exception": null
+        },
+        "additionalProperties": false
+      },
+      "VerifyFileCreditRequest": {
+        "type": "object",
+        "required": [
+          "account",
+          "fileId",
+          "fileType",
+          "userID"
+        ],
+        "properties": {
+          "account": {
+            "type": "string",
+            "example": "04054685740"
+          },
+          "fileId": {
+            "type": "string",
+            "example": "aff060be-0c53-48e9-9962-519812ee0865"
+          },
+          "fileType": {
+            "type": "string",
+            "example": "CSV"
+          },
+          "isPayroll": {
+            "type": "boolean",
+            "example": false
+          },
+          "userID": {
+            "type": "string",
+            "example": "User1"
+          }
+        },
+        "additionalProperties": false
+      },
+      "VerifyFileCreditRequest_": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/components/schemas/RequestHeader"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/VerifyFileCreditRequest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CommissionInfo": {
+        "type": "object",
+        "properties": {
+          "otherBankCommission": {
+            "type": "number",
+            "format": "double",
+            "example": 0
+          },
+          "agentCommission": {
+            "type": "number",
+            "format": "double",
+            "example": 0
+          },
+          "nbgCommission": {
+            "type": "number",
+            "format": "double",
+            "example": 0.2
+          },
+          "deptExpences": {
+            "type": "number",
+            "format": "double",
+            "example": 0
+          },
+          "nonStpExpences": {
+            "type": "number",
+            "format": "double",
+            "example": 0
+          },
+          "urgentExpences": {
+            "type": "number",
+            "format": "double",
+            "example": 0
+          },
+          "exchangeProfit": {
+            "type": "number",
+            "format": "double",
+            "example": 0
+          },
+          "sumCommission": {
+            "type": "number",
+            "format": "double",
+            "example": 0
+          },
+          "bankTitle": {
+            "type": "string",
+            "example": null
+          },
+          "depositor": {
+            "type": "string",
+            "example": null
+          }
+        },
+        "additionalProperties": false
+      },
+      "PayFileRecordRequest": {
+        "type": "object",
+        "properties": {
+          "serialNum": {
+            "type": "string",
+            "example": null
+          },
+          "debitAccount": {
+            "type": "string",
+            "example": "GR4701100120000001200119673"
+          },
+          "debitAccountValid": {
+            "type": "boolean",
+            "example": true
+          },
+          "debitAccountCharges": {
+            "type": "string",
+            "example": "GR4701100120000001200119673"
+          },
+          "debitAccountChargesValid": {
+            "type": "boolean",
+            "example": true
+          },
+          "sysType": {
+            "type": "string",
+            "example": null
+          },
+          "sysTypeValid": {
+            "type": "boolean",
+            "example": false
+          },
+          "sysCode": {
+            "type": "string",
+            "example": null
+          },
+          "sysCodeValid": {
+            "type": "boolean",
+            "example": false
+          },
+          "sysBic": {
+            "type": "string",
+            "example": null
+          },
+          "sysBicValid": {
+            "type": "boolean",
+            "example": false
+          },
+          "sysCountry": {
+            "type": "string",
+            "example": null
+          },
+          "sysCountryValid": {
+            "type": "boolean",
+            "example": false
+          },
+          "bicCode": {
+            "type": "string",
+            "example": "ETHNGRAA"
+          },
+          "bicCodeValid": {
+            "type": "boolean",
+            "example": true
+          },
+          "bankTitle": {
+            "type": "string",
+            "example": null
+          },
+          "accountType": {
+            "type": "string",
+            "example": "IBAN"
+          },
+          "accountTypeValid": {
+            "type": "boolean",
+            "example": true
+          },
+          "differentAccountValid": {
+            "type": "boolean",
+            "example": true
+          },
+          "iban": {
+            "type": "string",
+            "example": "GR9601106780000067890123458"
+          },
+          "ibanValid": {
+            "type": "boolean",
+            "example": true
+          },
+          "beneficiary": {
+            "type": "string",
+            "example": null
+          },
+          "beneficiaryValid": {
+            "type": "boolean",
+            "example": true
+          },
+          "beneficiaryAddress": {
+            "type": "string",
+            "example": null
+          },
+          "beneficiaryAddressValid": {
+            "type": "boolean",
+            "example": false
+          },
+          "amount": {
+            "type": "number",
+            "format": "double",
+            "example": 60.6
+          },
+          "amountValid": {
+            "type": "boolean",
+            "example": true
+          },
+          "currency": {
+            "type": "string",
+            "example": "EUR"
+          },
+          "currencyValid": {
+            "type": "boolean",
+            "example": true
+          },
+          "charges": {
+            "type": "string",
+            "example": "OUR"
+          },
+          "chargesValid": {
+            "type": "boolean",
+            "example": true
+          },
+          "emergency": {
+            "type": "boolean",
+            "example": null
+          },
+          "reason": {
+            "type": "string",
+            "example": "TEST REASON"
+          },
+          "reasonValid": {
+            "type": "boolean",
+            "example": true
+          },
+          "remCategory": {
+            "type": "string",
+            "example": null
+          },
+          "remCategoryValid": {
+            "type": "boolean",
+            "example": true
+          },
+          "remType": {
+            "type": "string",
+            "example": null
+          },
+          "remTypeValid": {
+            "type": "boolean",
+            "example": true
+          },
+          "importedGood": {
+            "type": "string",
+            "example": null
+          },
+          "importedGoodValid": {
+            "type": "boolean",
+            "example": true
+          },
+          "commisionData": {
+            "$ref": "#/components/schemas/CommissionInfo"
+          },
+          "totalCommission": {
+            "type": "number",
+            "format": "double",
+            "example": 0.2
+          },
+          "error": {
+            "type": "string",
+            "example": null
+          },
+          "creditorBeneficiaries": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": null
+          }
+        },
+        "additionalProperties": false
+      },
+      "FileCreditVerifyResponse": {
+        "type": "object",
+        "properties": {
+          "sumAmClear": {
+            "type": "number",
+            "format": "double",
+            "example": 60
+          },
+          "commission": {
+            "type": "number",
+            "format": "double",
+            "example": 0.6
+          },
+          "sumAmTotal": {
+            "type": "number",
+            "format": "double",
+            "example": 60.6
+          },
+          "totalRecords": {
+            "type": "integer",
+            "format": "int32",
+            "example": 3
+          },
+          "totalSuccRecords": {
+            "type": "integer",
+            "format": "int32",
+            "example": 3
+          },
+          "error": {
+            "type": "string",
+            "example": null
+          },
+          "hasErrors": {
+            "type": "boolean",
+            "example": false
+          },
+          "account": {
+            "type": "string",
+            "example": "04054685740"
+          },
+          "chargesAccount": {
+            "type": "string",
+            "example": null
+          },
+          "debitAccount": {
+            "type": "string",
+            "example": null
+          },
+          "fileName": {
+            "type": "string",
+            "example": "MassiveTransfersETE.csv"
+          },
+          "fileType": {
+            "type": "string",
+            "example": "csv"
+          },
+          "records": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PayFileRecordRequest"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "FileCreditVerifyResponse_": {
+        "type": "object",
+        "properties": {
+          "payload": {
+            "$ref": "#/components/schemas/FileCreditVerifyResponse"
+          },
+          "exception": {
+            "$ref": "#/components/schemas/ResponseMessage"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseMessage"
+            }
+          },
+          "executionTime": {
+            "type": "number",
+            "format": "double",
+            "example": 0
+          }
+        },
+        "additionalProperties": false
+      },
+      "PayFileCreditRequest": {
+        "type": "object",
+        "required": [
+          "userID",
+          "fileId",
+          "debitAccount",
+          "fileName",
+          "fileType",
+          "totalAmount",
+          "totalRecords"
+        ],
+        "properties": {
+          "userID": {
+            "type": "string",
+            "example": "User1"
+          },
+          "fileId": {
+            "type": "string",
+            "example": "aff060be-0c53-48e9-9962-519812ee0865"
+          },
+          "debitAccount": {
+            "type": "string",
+            "example": "04054685740"
+          },
+          "fileName": {
+            "type": "string",
+            "example": "MassiveTransfersETE.csv"
+          },
+          "fileType": {
+            "type": "string",
+            "example": "CSV"
+          },
+          "totalAmount": {
+            "type": "number",
+            "format": "double",
+            "example": 60
+          },
+          "totalRecords": {
+            "type": "integer",
+            "format": "int32",
+            "example": 3
+          },
+          "isPayroll": {
+            "type": "boolean",
+            "example": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "PayFileCreditRequest_": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/components/schemas/RequestHeader"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/PayFileCreditRequest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PayFileRecordResponse": {
+        "type": "object",
+        "properties": {
+          "serialNum": {
+            "type": "string",
+            "example": null
+          },
+          "debitAccount": {
+            "type": "string",
+            "example": "GR4701100120000001200119673"
+          },
+          "debitAccountCharges": {
+            "type": "string",
+            "example": "OUR"
+          },
+          "sysType": {
+            "type": "string",
+            "example": null
+          },
+          "sysCode": {
+            "type": "string",
+            "example": null
+          },
+          "sysBic": {
+            "type": "string",
+            "example": null
+          },
+          "sysCountry": {
+            "type": "string",
+            "example": null
+          },
+          "bicCode": {
+            "type": "string",
+            "example": "ETHNGRAA"
+          },
+          "bankTitle": {
+            "type": "string",
+            "example": null
+          },
+          "accountType": {
+            "type": "string",
+            "example": null
+          },
+          "iban": {
+            "type": "string",
+            "example": "GR9601106780000067890123458"
+          },
+          "beneficiary": {
+            "type": "string",
+            "example": null
+          },
+          "beneficiary2": {
+            "type": "string",
+            "example": null
+          },
+          "beneficiary3": {
+            "type": "string",
+            "example": null
+          },
+          "beneficiaryAddress": {
+            "type": "string",
+            "example": null
+          },
+          "amount": {
+            "type": "number",
+            "format": "double",
+            "example": 0.01
+          },
+          "currency": {
+            "type": "string",
+            "example": "EUR"
+          },
+          "charges": {
+            "type": "string",
+            "example": "OUR"
+          },
+          "emergency": {
+            "type": "boolean",
+            "example": false
+          },
+          "reason": {
+            "type": "string",
+            "example": "TEST1"
+          },
+          "remCategory": {
+            "type": "string",
+            "example": null
+          },
+          "remType": {
+            "type": "string",
+            "example": null
+          },
+          "importedGood": {
+            "type": "string",
+            "example": null
+          },
+          "commisionData": {
+            "$ref": "#/components/schemas/CommissionInfo"
+          },
+          "sumCommission": {
+            "type": "number",
+            "format": "double",
+            "example": 0.2
+          },
+          "debitAmount": {
+            "type": "number",
+            "format": "double",
+            "example": 0.21
+          },
+          "netAmount": {
+            "type": "number",
+            "format": "double",
+            "example": 0.01
+          },
+          "orderNo": {
+            "type": "string",
+            "example": null
+          },
+          "msgCode": {
+            "type": "string",
+            "example": "000"
+          },
+          "error": {
+            "type": "string",
+            "example": null
+          },
+          "creditorBeneficiaries": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": null
+          }
+        },
+        "additionalProperties": false
+      },
+      "PayFileResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "516515e3-820b-4bf7-b7fe-7d524f64ca19"
+          },
+          "debitAccount": {
+            "type": "string",
+            "example": "GR4701100120000001200119673"
+          },
+          "chargesAccount": {
+            "type": "string",
+            "example": null
+          },
+          "totalFileAmount": {
+            "type": "number",
+            "format": "double",
+            "example": 0.06
+          },
+          "totalAmount": {
+            "type": "number",
+            "format": "double",
+            "example": 0.6
+          },
+          "totalCommission": {
+            "type": "number",
+            "format": "double",
+            "example": 0.6
+          },
+          "totalRecords": {
+            "type": "integer",
+            "format": "int32",
+            "example": 3
+          },
+          "totalSuccRecords": {
+            "type": "integer",
+            "format": "int32",
+            "example": 3
+          },
+          "tanCheck": {
+            "type": "string",
+            "example": "433"
+          },
+          "transactionDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2020-10-06T16:44:33.9450956+03:00"
+          },
+          "fileName": {
+            "type": "string",
+            "example": "MassCredits_1019614.xml"
+          },
+          "fileType": {
+            "type": "string",
+            "example": null
+          },
+          "records": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PayFileRecordResponse"
+            }
+          },
+          "deferredFileId": {
+            "type": "string",
+            "example": "4435540988"
+          },
+          "isDuplicate": {
+            "type": "boolean",
+            "example": null
+          },
+          "requiresApproval": {
+            "type": "boolean",
+            "example": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "PayFileResponse_": {
+        "type": "object",
+        "properties": {
+          "payload": {
+            "$ref": "#/components/schemas/PayFileResponse"
+          },
+          "exception": {
+            "$ref": "#/components/schemas/ResponseMessage"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseMessage"
+            }
+          },
+          "executionTime": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResultPayCreditWithFileRequest": {
+        "type": "object",
+        "required": [
+          "userID",
+          "fileId"
+        ],
+        "properties": {
+          "userID": {
+            "type": "string",
+            "example": "User1"
+          },
+          "fileId": {
+            "type": "string",
+            "example": "aff060be-0c53-48e9-9962-519812ee0865"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResultPayCreditWithFileRequest_": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/components/schemas/RequestHeader"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/ResultPayCreditWithFileRequest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResultPayCreditWithFileResponse": {
+        "type": "object",
+        "properties": {
+          "fileName": {
+            "type": "string",
+            "example": "MassiveTransfers_6948064912.json"
+          },
+          "fileId": {
+            "type": "string",
+            "example": "c7a24448-256b-46b0-b8c3-a418dff446ea"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResultPayCreditWithFileResponse_": {
+        "type": "object",
+        "properties": {
+          "payload": {
+            "$ref": "#/components/schemas/ResultPayCreditWithFileResponse"
+          },
+          "exception": {
+            "$ref": "#/components/schemas/ResponseMessage"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseMessage"
+            }
+          },
+          "executionTime": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetMassiveTransfersRequest": {
+        "type": "object",
+        "required": [
+          "userID"
+        ],
+        "properties": {
+          "userID": {
+            "type": "string",
+            "example": "User1"
+          },
+          "fromDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2020-01-01T12:25:46.559Z"
+          },
+          "toDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2020-12-24T12:25:46.559Z"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetMassiveTransfersRequest_": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/components/schemas/RequestHeader"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/GetMassiveTransfersRequest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "DeferredDetails": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "field": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "DeferredHistoryExecution": {
+        "type": "object",
+        "properties": {
+          "errorMessage": {
+            "type": "string"
+          },
+          "executionTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "executionStatus": {
+            "type": "string"
+          },
+          "externalId": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "DeferredTransactionInfo": {
+        "type": "object",
+        "properties": {
+          "trnNo": {
+            "type": "string",
+            "example": null
+          },
+          "trnId": {
+            "type": "string",
+            "example": "20201006164435663633"
+          },
+          "name": {
+            "type": "string",
+            "example": "TEST3"
+          },
+          "description": {
+            "type": "string",
+            "example": "ΑΡΧΕΙΟ MassCredits_1019614.xml"
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2020-10-06T16:44:33.66363+03:00"
+          },
+          "executionDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2020-10-06T00:00:00+03:00"
+          },
+          "cancelationDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": null
+          },
+          "frequency": {
+            "type": "integer",
+            "format": "int32",
+            "example": 99
+          },
+          "totalPayments": {
+            "type": "integer",
+            "format": "int32",
+            "example": 1
+          },
+          "amount": {
+            "type": "number",
+            "format": "double",
+            "example": 0.06
+          },
+          "status": {
+            "type": "string",
+            "example": 0
+          },
+          "transId": {
+            "type": "string",
+            "example": "4435540988"
+          },
+          "channel": {
+            "type": "string",
+            "example": "REM_MASS_H"
+          },
+          "rowsNum": {
+            "type": "integer",
+            "format": "int32",
+            "example": 3
+          },
+          "debitAccount": {
+            "type": "string",
+            "example": "GR4701100120000001200119673"
+          },
+          "totalAmount": {
+            "type": "number",
+            "format": "double",
+            "example": 0.06
+          },
+          "creditAccount": {
+            "type": "string",
+            "example": null
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeferredDetails"
+            },
+            "example": null
+          },
+          "historical": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeferredHistoryExecution"
+            },
+            "example": null
+          }
+        },
+        "additionalProperties": false
+      },
+      "DeferredActiveAllResponse": {
+        "type": "object",
+        "properties": {
+          "trans": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeferredTransactionInfo"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "DeferredActiveAllResponse_": {
+        "type": "object",
+        "properties": {
+          "payload": {
+            "$ref": "#/components/schemas/DeferredActiveAllResponse"
+          },
+          "exception": {
+            "$ref": "#/components/schemas/ResponseMessage"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseMessage"
+            },
+            "example": null
+          },
+          "executionTime": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetMassTransfersFileDetailsRequest": {
+        "type": "object",
+        "required": [
+          "userID",
+          "transId"
+        ],
+        "properties": {
+          "userID": {
+            "type": "string",
+            "example": "User1"
+          },
+          "transId": {
+            "type": "string",
+            "example": "2078183642"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetMassTransfersFileDetailsRequest_": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/components/schemas/RequestHeader"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/GetMassTransfersFileDetailsRequest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SandboxDeferredTrans": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "fileId": {
+            "type": "string"
+          },
+          "trnNo": {
+            "type": "string"
+          },
+          "trnId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "executionDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "cancellationDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "frequency": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPayments": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "status": {
+            "type": "string"
+          },
+          "transId": {
+            "type": "string"
+          },
+          "channel": {
+            "type": "string"
+          },
+          "rowsNum": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "debitAccount": {
+            "type": "string"
+          },
+          "totalAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "creditAccount": {
+            "type": "string"
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeferredDetails"
+            }
+          },
+          "historical": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeferredHistoryExecution"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "SandboxMassTransfersSampleFile": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$",
+            "type": "string",
+            "format": "byte"
+          },
+          "fileFormat": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "payload": {
+            "type": "object"
+          },
+          "exception": {
+            "$ref": "#/components/schemas/ResponseMessage"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseMessage"
+            }
+          },
+          "executionTime": {
+            "format": "double",
+            "type": "number"
+          }
+        },
+        "example": {
+          "payload": null,
+          "executionTime": 0,
+          "exception": {
+            "id": "02A7470B-0FDE-4EB4-A1E1-662BEDE4434B",
+            "sev": "Error",
+            "desc": "Incorrect Json Format",
+            "cat": "Business",
+            "code": 20
+          }
+        }
+      },
+      "SandboxDataModel": {
+        "type": "object",
+        "properties": {
+          "sandboxId": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SandboxUser"
+            }
+          },
+          "folders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SandboxFolder"
+            }
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SandboxFile"
+            }
+          },
+          "tppSampleFiles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SandboxTppSampleFile"
+            }
+          },
+          "deferredTrans": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SandboxDeferredTrans"
+            }
+          },
+          "ethnofiles": {
+            "$ref": "#/components/schemas/SandboxEthnofiles"
+          },
+          "massTransfersSampleFiles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SandboxMassTransfersSampleFile"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "SandboxUser": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "folders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SandboxUserFolder"
+            }
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SandboxUserFile"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "SandboxUserFile": {
+        "type": "object",
+        "properties": {
+          "fileId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "permissions": {
+            "$ref": "#/components/schemas/UserPermissions"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SandboxUserFolder": {
+        "type": "object",
+        "properties": {
+          "folderId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "permissions": {
+            "$ref": "#/components/schemas/UserPermissions"
+          }
+        }
+      },
+      "SandboxRequest": {
+        "required": [
+          "sandboxId",
+          "userId"
+        ],
+        "type": "object",
+        "properties": {
+          "sandboxId": {
+            "type": "string",
+            "example": "MySandbox"
+          },
+          "userId": {
+            "type": "string",
+            "example": "User1"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserPermissions": {
+        "type": "object",
+        "properties": {
+          "canAdd": {
+            "type": "boolean"
+          },
+          "canView": {
+            "type": "boolean"
+          },
+          "canEditMetadata": {
+            "type": "boolean"
+          },
+          "canMove": {
+            "type": "boolean"
+          },
+          "canDelete": {
+            "type": "boolean"
+          },
+          "canShare": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "FileStatusEnum": {
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "SandboxFile": {
+        "type": "object",
+        "properties": {
+          "folderId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "fileId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "fileContent": {
+            "type": "string",
+            "format": "byte"
+          },
+          "fileName": {
+            "type": "string"
+          },
+          "fileDescription": {
+            "type": "string"
+          },
+          "fileIcon": {
+            "type": "string",
+            "format": "byte"
+          },
+          "fileSize": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalChunks": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fileStatus": {
+            "$ref": "#/components/schemas/FileStatusEnum"
+          },
+          "metadata": {
+            "type": "string"
+          },
+          "userTags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "systemTags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "createdByUserId": {
+            "type": "string"
+          },
+          "createdByUserRegistry": {
+            "type": "string"
+          },
+          "updatedByUserId": {
+            "type": "string"
+          },
+          "updatedByUserRegistry": {
+            "type": "string"
+          },
+          "createdOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedOn": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SandboxTppSampleFile": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "format": "byte"
+          },
+          "fileFormat": {
+            "$ref": "#/components/schemas/MassPaymentsFileFormat"
+          }
+        },
+        "additionalProperties": false
+      },
+      "MassPaymentsFileFormat": {
+        "enum": [
+          0,
+          1,
+          2
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "SandboxEthnofiles": {
+        "type": "object",
+        "properties": {
+          "customers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SandboxEthnofilesCustomer"
+            }
+          },
+          "applications": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SandboxEthnofilesApplication"
+            }
+          },
+          "customerApplications": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SandboxEthnofilesCustomerApplication"
+            }
+          },
+          "customerApplicationFiles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SandboxEthnofilesCustomerApplicationFiles"
+            }
+          },
+          "validators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SandboxEthnofilesValidator"
+            }
+          },
+          "validationsInbox": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SandboxEthnofilesValidationsInbox"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "SandboxEthnofilesCustomer": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "parentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "code": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "surname": {
+            "type": "string"
+          },
+          "fname": {
+            "type": "string"
+          },
+          "fileCode": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "addressNumber": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "contact": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "fax": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "createdOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createUser": {
+            "type": "string"
+          },
+          "updateUser": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SandboxEthnofilesApplication": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "description": {
+            "type": "string"
+          },
+          "validatorId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "conversionId": {
+            "type": "string"
+          },
+          "isXml": {
+            "type": "boolean"
+          },
+          "createUser": {
+            "type": "string"
+          },
+          "updateUser": {
+            "type": "string"
+          },
+          "createdOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedOn": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SandboxEthnofilesCustomerApplication": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "customerId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "applicationId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "filename": {
+            "type": "string"
+          },
+          "fileDescription": {
+            "type": "string"
+          },
+          "ascendingFilename": {
+            "type": "boolean"
+          },
+          "fileDirection": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "overwriteAllowed": {
+            "type": "boolean"
+          },
+          "exportToSystem": {
+            "type": "string"
+          },
+          "cutOff": {
+            "type": "string"
+          },
+          "retentionPeriodInDays": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "createUser": {
+            "type": "string"
+          },
+          "updateUser": {
+            "type": "string"
+          },
+          "createdOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedOn": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SandboxEthnofilesCustomerApplicationFiles": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "customerApplicationId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "filename": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "createdOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fileId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "xActionInfo": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "executionDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fileDirection": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isHistorical": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SandboxEthnofilesValidator": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "description": {
+            "type": "string"
+          },
+          "assemblyFullName": {
+            "type": "string"
+          },
+          "jsonData": {
+            "type": "string"
+          },
+          "validationType": {
+            "type": "string"
+          },
+          "createUser": {
+            "type": "string"
+          },
+          "updateUser": {
+            "type": "string"
+          },
+          "createdOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedOn": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SandboxEthnofilesValidationsInbox": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "customerApplicationId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "filename": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "Client-Id": {
+        "type": "apiKey",
+        "description": "Application's Id",
+        "name": "Client-Id",
+        "in": "header"
+      },
+      "Authorization-Code-Token": {
+        "type": "oauth2",
+        "description": "OAuth2 Authorization Code Flow",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://my.nbg.gr/identity/connect/authorize",
+            "tokenUrl": "https://my.nbg.gr/identity/connect/token",
+            "scopes": {
+              "openid profile ibank_profile sandbox-file-api-v4": "Sandbox Scope",
+              "openid profile ibank_profile file-api-v4": "Production Scope"
+            }
+          }
+        }
+      },
+      "Client-Credentials-Token": {
+        "type": "oauth2",
+        "description": "OAuth2 Client Credentials Flow",
+        "flows": {
+          "clientCredentials": {
+            "tokenUrl": "https://my.nbg.gr/identity/connect/token",
+            "scopes": {
+              "sandbox-file-api-v4": "Sandbox Scope",
+              "file-api-v4": "Production Scope"
+            }
+          }
+        }
+      }
+    }
+  }
+}
